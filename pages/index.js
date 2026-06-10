@@ -420,8 +420,99 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
   );
 }
 
+// ─── MAINTENANCE PANEL ────────────────────────────────────────────────────────
+function MaintenancePanel({assetId,records,onAdd,onDelete,onEdit}) {
+  const empty = {serviceDate:"",vendor:"",description:"",invoiceNumber:"",cost:"",mileage:"",location:""};
+  const [form,setForm]=useState(empty);
+  const [editId,setEditId]=useState(null);
+  const [saving,setSaving]=useState(false);
+  const [showForm,setShowForm]=useState(false);
+  const sf=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const fi=(k,label,ph="")=><div><Label>{label}</Label><input style={inp()} value={form[k]} onChange={e=>sf(k,e.target.value)} placeholder={ph}/></div>;
+
+  const handleSave=async()=>{
+    if(!form.serviceDate.trim()&&!form.description.trim()){alert("Enter at least a date or description");return;}
+    setSaving(true);
+    if(editId!=null){await onEdit({id:editId,...form});setEditId(null);}
+    else{await onAdd({assetId,...form});}
+    setForm(empty);setSaving(false);setShowForm(false);
+  };
+
+  const handleEdit=(r)=>{
+    setEditId(r.id);
+    setForm({serviceDate:r.serviceDate,vendor:r.vendor,description:r.description,invoiceNumber:r.invoiceNumber,cost:r.cost,mileage:r.mileage,location:r.location});
+    setShowForm(true);
+  };
+
+  return (
+    <div style={{margin:"16px 16px 0",background:"#fff",borderRadius:"12px",border:"1px solid #e5e7eb",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+      <div style={{background:"#fff7ed",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",borderBottom:"1px solid #fed7aa"}}>
+        <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
+          <span style={{fontSize:"16px"}}>🔧</span>
+          <span style={{color:"#92400e",fontSize:"13px",fontWeight:700,letterSpacing:"0.04em",textTransform:"uppercase"}}>Maintenance & Repairs</span>
+          {records.length>0&&<span style={{background:"#fed7aa",color:"#92400e",padding:"1px 8px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>{records.length}</span>}
+        </div>
+        <button onClick={()=>{setShowForm(s=>!s);setEditId(null);setForm(empty);}} style={{background:showForm?"#fed7aa":"#fff7ed",border:"1px solid #fed7aa",color:"#92400e",cursor:"pointer",padding:"4px 12px",borderRadius:"6px",fontSize:"12px",fontWeight:700,fontFamily:"inherit"}}>
+          {showForm?"✕ Cancel":"＋ Add"}
+        </button>
+      </div>
+
+      {showForm&&(
+        <div style={{padding:"16px",borderBottom:"1px solid #fde68a",background:"#fffbeb"}}>
+          <div style={{color:"#92400e",fontSize:"12px",fontWeight:700,marginBottom:"12px"}}>{editId!=null?"✏️ Edit Record":"➕ New Maintenance Record"}</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px",marginBottom:"10px"}}>
+            {fi("serviceDate","Date","MM/DD/YYYY")}
+            {fi("vendor","Vendor / Shop","e.g. Sawgrass Ford")}
+            <div style={{gridColumn:"1/-1"}}>{fi("description","Service Description","e.g. Oil change, tire rotation, brake pads")}</div>
+            {fi("invoiceNumber","Invoice #","")}
+            {fi("cost","Cost","$0.00")}
+            {fi("mileage","Mileage","")}
+            <div style={{gridColumn:"1/-1"}}>{fi("location","Location","Where service was performed")}</div>
+          </div>
+          <div style={{display:"flex",gap:"8px"}}>
+            {editId!=null&&<Btn variant="secondary" onClick={()=>{setEditId(null);setForm(empty);setShowForm(false);}} style={{flex:1}}>Cancel</Btn>}
+            <Btn variant="orange" onClick={handleSave} disabled={saving} style={{flex:2}}>{saving?"Saving…":editId!=null?"✓ Update":"＋ Save Record"}</Btn>
+          </div>
+        </div>
+      )}
+
+      {records.length===0&&!showForm&&(
+        <div style={{padding:"24px",textAlign:"center",color:"#d1d5db",fontSize:"13px",fontStyle:"italic"}}>No maintenance records yet.</div>
+      )}
+
+      {records.length>0&&(
+        <div style={{maxHeight:"400px",overflowY:"auto"}}>
+          {records.map((r,i)=>(
+            <div key={r.id} style={{padding:"12px 16px",borderBottom:i<records.length-1?"1px solid #f3f4f6":"none",background:"#fff"}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:"10px"}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
+                    {r.serviceDate&&<span style={{background:"#fff7ed",color:"#ea580c",border:"1px solid #fed7aa",padding:"2px 8px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>📅 {r.serviceDate}</span>}
+                    {r.vendor&&<span style={{color:"#374151",fontSize:"12px",fontWeight:600}}>{r.vendor}</span>}
+                    {r.invoiceNumber&&<span style={{background:"#f0fdf4",color:"#16a34a",border:"1px solid #86efac",padding:"2px 8px",borderRadius:"20px",fontSize:"11px",fontWeight:600}}>Invoice #{r.invoiceNumber}</span>}
+                  </div>
+                  {r.description&&<div style={{color:"#374151",fontSize:"13px",lineHeight:"1.5",marginBottom:"4px"}}>{r.description}</div>}
+                  <div style={{display:"flex",gap:"12px",flexWrap:"wrap"}}>
+                    {r.cost&&<span style={{color:"#16a34a",fontSize:"12px",fontWeight:700}}>💰 {r.cost}</span>}
+                    {r.mileage&&<span style={{color:"#6b7280",fontSize:"12px"}}>🛣️ {r.mileage} mi</span>}
+                    {r.location&&<span style={{color:"#6b7280",fontSize:"12px"}}>📍 {r.location}</span>}
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:"4px",flexShrink:0}}>
+                  <button onClick={()=>handleEdit(r)} style={{background:"#eff6ff",border:`1px solid ${BLUE_BORDER}`,color:BLUE_MID,cursor:"pointer",padding:"4px 8px",borderRadius:"5px",fontSize:"11px",fontWeight:600}}>Edit</button>
+                  <button onClick={()=>onDelete(r.id)} style={{background:"#fee2e2",border:"1px solid #fca5a5",color:"#dc2626",cursor:"pointer",padding:"4px 8px",borderRadius:"5px",fontSize:"11px",fontWeight:600}}>✕</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── DETAIL PANEL ─────────────────────────────────────────────────────────────
-function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan}) {
+function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,maintenance,onAddMaintenance,onEditMaintenance,onDeleteMaintenance}) {
   const [noteText,setNoteText]=useState("");
   const [savingNote,setSavingNote]=useState(false);
   if(!asset)return null;
@@ -509,6 +600,16 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan})
           </div>
         </div>
 
+        {["Vehicles","Golf Carts"].includes(asset.category)&&(
+          <MaintenancePanel
+            assetId={asset.id}
+            records={maintenance[asset.id]||[]}
+            onAdd={onAddMaintenance}
+            onEdit={onEditMaintenance}
+            onDelete={(id)=>onDeleteMaintenance(asset.id,id)}
+          />
+        )}
+
         <div style={{padding:"16px 16px 40px",display:"flex",flexDirection:"column",gap:"12px"}}>
           {relevant.map(group=>(
             <div key={group.group} style={{background:"#fff",borderRadius:"12px",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",overflow:"hidden",border:"1px solid #e5e7eb"}}>
@@ -550,6 +651,7 @@ export default function AssetTracker() {
   const [assets,setAssets]=useState([]);
   const [notes,setNotes]=useState({});
   const [locations,setLocations]=useState([]);
+  const [maintenance,setMaintenance]=useState({});
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState(null);
   const [search,setSearch]=useState("");
@@ -573,9 +675,13 @@ export default function AssetTracker() {
     async function init(){
       try {
         await fetch("/api/init",{method:"POST"});
-        const [aRes,nRes,lRes]=await Promise.all([fetch("/api/assets"),fetch("/api/notes"),fetch("/api/locations")]);
-        const [aData,nData,lData]=await Promise.all([aRes.json(),nRes.json(),lRes.json()]);
+        const [aRes,nRes,lRes,mRes]=await Promise.all([fetch("/api/assets"),fetch("/api/notes"),fetch("/api/locations"),fetch("/api/maintenance")]);
+        const [aData,nData,lData,mData]=await Promise.all([aRes.json(),nRes.json(),lRes.json(),mRes.json()]);
         setAssets(aData);setNotes(nData);setLocations(lData);
+        // Group maintenance records by asset id
+        const mByAsset={};
+        for(const r of mData){if(!mByAsset[r.assetId])mByAsset[r.assetId]=[];mByAsset[r.assetId].push(r);}
+        setMaintenance(mByAsset);
       } catch(e){setError(e.message);}
       setLoading(false);
     }
@@ -654,6 +760,26 @@ export default function AssetTracker() {
     if(!confirm("Delete this location?"))return;
     await fetch("/api/locations",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
     setLocations(p=>p.filter(l=>l.id!==id));
+  };
+
+  // Maintenance CRUD
+  const handleAddMaintenance=async(form)=>{
+    const res=await fetch("/api/maintenance",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+    const rec=await res.json();
+    setMaintenance(p=>({...p,[form.assetId]:[rec,...(p[form.assetId]||[])]}));
+  };
+  const handleEditMaintenance=async(form)=>{
+    const res=await fetch("/api/maintenance",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(form)});
+    const rec=await res.json();
+    setMaintenance(p=>{
+      const list=(p[rec.assetId]||[]).map(r=>r.id===rec.id?rec:r);
+      return {...p,[rec.assetId]:list};
+    });
+  };
+  const handleDeleteMaintenance=async(assetId,id)=>{
+    if(!confirm("Delete this maintenance record?"))return;
+    await fetch("/api/maintenance",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});
+    setMaintenance(p=>({...p,[assetId]:(p[assetId]||[]).filter(r=>r.id!==id)}));
   };
 
   // Filtering & sorting
@@ -834,7 +960,7 @@ export default function AssetTracker() {
           <div style={{height:"40px"}}/>
         </div>
 
-        {selectedLive&&<DetailPanel asset={selectedLive} onClose={()=>setSelected(null)} notes={notes} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onEdit={a=>setEditAsset(a)} onLoan={a=>setLoanAsset(a)}/>}
+        {selectedLive&&<DetailPanel asset={selectedLive} onClose={()=>setSelected(null)} notes={notes} onAddNote={handleAddNote} onDeleteNote={handleDeleteNote} onEdit={a=>setEditAsset(a)} onLoan={a=>setLoanAsset(a)} maintenance={maintenance} onAddMaintenance={handleAddMaintenance} onEditMaintenance={handleEditMaintenance} onDeleteMaintenance={handleDeleteMaintenance}/>}
         {editAsset&&<EditModal asset={editAsset} onClose={()=>setEditAsset(null)} onSave={handleEditSave} locations={locations} saving={saving}/>}
         {loanAsset&&<LoanModal asset={loanAsset} onClose={()=>setLoanAsset(null)} onSave={handleLoanSave}/>}
         {showAdd&&<AddModal onClose={()=>setShowAdd(false)} onSave={handleAddAsset} nextId={nextId} locations={locations} saving={saving}/>}
