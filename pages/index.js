@@ -819,6 +819,7 @@ export default function AssetTracker() {
     const alerts=[];
     for(const a of assets){
       if(!["Vehicles","Golf Carts"].includes(a.category))continue;
+      if(a.status==="Out of Service")continue;
       const tagExp=parseMMDDYYYY(a.tagExpires);
       if(tagExp){
         if(tagExp<today)alerts.push({asset:a,type:"Tag EXPIRED",date:a.tagExpires,severity:"expired"});
