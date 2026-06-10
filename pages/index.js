@@ -948,7 +948,7 @@ export default function AssetTracker() {
 
   if(loading) return (
     <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY},#1B4668)`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"16px"}}>
-      <img src={LOGO_SRC} alt="FPI" style={{height:"64px",objectFit:"contain",filter:"brightness(0) invert(1)",opacity:0.9}}/>
+      <img src={LOGO_SRC} alt="FPI" style={{height:"64px",objectFit:"contain",opacity:0.95}}/>
       <div style={{color:BLUE_GRAY,fontSize:"14px",fontFamily:"'Barlow',system-ui,sans-serif",letterSpacing:"0.06em",textTransform:"uppercase"}}>Loading asset inventory…</div>
     </div>
   );
@@ -972,7 +972,7 @@ export default function AssetTracker() {
 
         {/* Top Bar — Dark Navy */}
         <div style={{background:`linear-gradient(135deg,${DEEP_NAVY} 0%,${DARK_NAVY} 60%,#1B4668 100%)`,padding:"0 32px",display:"flex",alignItems:"center",gap:"20px",height:"68px",boxShadow:"0 2px 12px rgba(0,0,0,0.18)",position:"sticky",top:0,zIndex:40}}>
-          <img src={LOGO_SRC} alt="FPI Security Services" style={{height:"42px",objectFit:"contain",display:"block",filter:"brightness(0) invert(1)",opacity:0.95}}/>
+          <img src={LOGO_SRC} alt="FPI Security Services" style={{height:"42px",objectFit:"contain",display:"block",opacity:0.95}}/>
           <div style={{width:"1px",height:"30px",background:"rgba(137,152,177,0.3)"}}/>
           <div>
             <div style={{color:"#fff",fontWeight:700,fontSize:"16px",lineHeight:1.1,fontFamily:"'Rajdhani','Barlow',sans-serif",letterSpacing:"0.04em"}}>ASSET TRACKER</div>
