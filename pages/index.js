@@ -353,7 +353,9 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
   const [form,setForm]=useState({name:"",address:"",contact:"",email:"",phone:""});
   const [editId,setEditId]=useState(null);
   const [saving,setSaving]=useState(false);
+  const [locSearch,setLocSearch]=useState("");
   const sf=(k,v)=>setForm(f=>({...f,[k]:v}));
+  const visibleLocations=locSearch.trim()?locations.filter(l=>l.name.toLowerCase().includes(locSearch.toLowerCase())||l.address?.toLowerCase().includes(locSearch.toLowerCase())):locations;
 
   const handleSave=async()=>{
     if(!form.name.trim()){alert("Name required");return;}
@@ -373,6 +375,7 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
           <div style={{flex:1}}>
             <div style={{color:"#16a34a",fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>MANAGE LOCATIONS</div>
             <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>{locations.length} Location{locations.length!==1?"s":""}</div>
+
           </div>
           <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
@@ -394,9 +397,14 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
             </div>
           </div>
 
+          <div style={{position:"relative",marginBottom:"16px"}}>
+            <span style={{position:"absolute",left:"10px",top:"50%",transform:"translateY(-50%)",color:"#9ca3af",fontSize:"14px"}}>🔍</span>
+            <input value={locSearch} onChange={e=>setLocSearch(e.target.value)} placeholder={`Search ${locations.length} locations…`} style={{...inp({paddingLeft:"32px"})}}/>
+          </div>
+
           <div style={{display:"flex",flexDirection:"column",gap:"10px",paddingBottom:"40px"}}>
-            {locations.length===0&&<div style={{textAlign:"center",color:"#d1d5db",padding:"32px",fontSize:"14px"}}>No locations yet.</div>}
-            {locations.map(loc=>(
+            {visibleLocations.length===0&&<div style={{textAlign:"center",color:"#d1d5db",padding:"32px",fontSize:"14px"}}>{locSearch?"No locations match your search.":"No locations yet."}</div>}
+            {visibleLocations.map(loc=>(
               <div key={loc.id} style={{background:"#fff",borderRadius:"10px",border:"1px solid #e5e7eb",padding:"14px 16px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:"10px"}}>
                   <div style={{flex:1}}>
@@ -634,13 +642,117 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
 }
 
 // ─── STAT CARD ────────────────────────────────────────────────────────────────
-function StatCard({label,value,bg,icon}) {
+function StatCard({label,value,bg,icon,onClick,active}) {
   return (
-    <div style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:"12px",padding:"18px 20px",display:"flex",alignItems:"center",gap:"14px",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+    <div onClick={onClick} style={{background:"#fff",border:`2px solid ${active?"#2563eb":"#e5e7eb"}`,borderRadius:"12px",padding:"18px 20px",display:"flex",alignItems:"center",gap:"14px",boxShadow:active?`0 0 0 3px ${BLUE_BG}`:"0 1px 4px rgba(0,0,0,0.05)",cursor:onClick?"pointer":"default",transition:"all 0.15s",userSelect:"none"}}
+      onMouseEnter={onClick?e=>{if(!active)e.currentTarget.style.borderColor="#93c5fd";}:undefined}
+      onMouseLeave={onClick?e=>{if(!active)e.currentTarget.style.borderColor="#e5e7eb";}:undefined}>
       <div style={{width:"46px",height:"46px",background:bg,borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px"}}>{icon}</div>
       <div>
-        <div style={{color:"#9ca3af",fontSize:"11px",fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:"3px"}}>{label}</div>
+        <div style={{color:active?BLUE_MID:"#9ca3af",fontSize:"11px",fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:"3px"}}>{label}</div>
         <div style={{color:"#111827",fontSize:"26px",fontWeight:800,lineHeight:1}}>{value}</div>
+      </div>
+      {onClick&&<div style={{marginLeft:"auto",color:active?BLUE_MID:"#d1d5db",fontSize:"11px",fontWeight:700}}>{active?"✓ Active":"Filter"}</div>}
+    </div>
+  );
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function parseMMDDYYYY(str) {
+  if(!str)return null;
+  const d=new Date(str);
+  return isNaN(d.getTime())?null:d;
+}
+
+// ─── MAINTENANCE OVERVIEW ─────────────────────────────────────────────────────
+function MaintenanceOverview({onClose,maintenance,assets}) {
+  const [vehicleFilter,setVehicleFilter]=useState("All");
+  const [search,setSearch]=useState("");
+
+  const vehicles=useMemo(()=>assets.filter(a=>["Vehicles","Golf Carts"].includes(a.category)),[assets]);
+
+  const allRecords=useMemo(()=>{
+    const out=[];
+    for(const[assetId,recs] of Object.entries(maintenance)){
+      const asset=assets.find(a=>a.id===assetId);
+      if(!asset)continue;
+      for(const r of recs)out.push({...r,asset});
+    }
+    return out.sort((a,b)=>{
+      const da=parseMMDDYYYY(a.serviceDate)||new Date(0);
+      const db=parseMMDDYYYY(b.serviceDate)||new Date(0);
+      return db-da;
+    });
+  },[maintenance,assets]);
+
+  const filtered=useMemo(()=>{
+    let r=allRecords;
+    if(vehicleFilter!=="All")r=r.filter(x=>x.assetId===vehicleFilter);
+    if(search.trim()){
+      const q=search.toLowerCase();
+      r=r.filter(x=>x.vendor?.toLowerCase().includes(q)||x.description?.toLowerCase().includes(q)||x.invoiceNumber?.toLowerCase().includes(q)||x.asset?.title?.toLowerCase().includes(q)||x.asset?.vehicleNumber?.toLowerCase().includes(q));
+    }
+    return r;
+  },[allRecords,vehicleFilter,search]);
+
+  const totalCost=useMemo(()=>filtered.reduce((sum,r)=>{
+    const c=parseFloat((r.cost||"").replace(/[$,]/g,""))||0;
+    return sum+c;
+  },0),[filtered]);
+
+  return (
+    <div style={{position:"fixed",inset:0,zIndex:75,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
+      <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
+      <div style={{position:"relative",zIndex:10,width:"740px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.12)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
+          <div style={{width:"42px",height:"42px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>🔧</div>
+          <div style={{flex:1}}>
+            <div style={{color:"#ea580c",fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>MAINTENANCE HISTORY</div>
+            <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>All Vehicle Service Records</div>
+          </div>
+          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+        </div>
+
+        <div style={{padding:"20px 24px",borderBottom:"1px solid #e5e7eb",display:"flex",gap:"12px",flexWrap:"wrap",alignItems:"center"}}>
+          <div style={{position:"relative",flex:1,minWidth:"180px"}}>
+            <span style={{position:"absolute",left:"10px",top:"50%",transform:"translateY(-50%)",color:"#9ca3af",fontSize:"14px"}}>🔍</span>
+            <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search vendor, description, invoice…" style={{...inp({paddingLeft:"32px"})}}/>
+          </div>
+          <select value={vehicleFilter} onChange={e=>setVehicleFilter(e.target.value)} style={sel({minWidth:"200px"})}>
+            <option value="All">All Vehicles</option>
+            {vehicles.map(v=><option key={v.id} value={v.id}>{v.vehicleNumber?`${v.vehicleNumber} — `:""}{v.title}</option>)}
+          </select>
+          <div style={{background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:"8px",padding:"8px 14px",fontSize:"13px",fontWeight:700,color:"#92400e",whiteSpace:"nowrap"}}>
+            {filtered.length} record{filtered.length!==1?"s":""} · ${totalCost.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})} total
+          </div>
+        </div>
+
+        <div style={{padding:"16px 24px 40px"}}>
+          {filtered.length===0&&<div style={{textAlign:"center",color:"#d1d5db",padding:"48px",fontSize:"14px",fontStyle:"italic"}}>No maintenance records found.</div>}
+          {filtered.map((r,i)=>(
+            <div key={r.id} style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:"10px",padding:"14px 16px",marginBottom:"10px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+              <div style={{display:"flex",alignItems:"flex-start",gap:"12px"}}>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"6px",flexWrap:"wrap"}}>
+                    {r.serviceDate&&<span style={{background:"#fff7ed",color:"#ea580c",border:"1px solid #fed7aa",padding:"2px 9px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>📅 {r.serviceDate}</span>}
+                    {r.invoiceNumber&&<span style={{background:"#f0fdf4",color:"#16a34a",border:"1px solid #86efac",padding:"2px 9px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>Invoice #{r.invoiceNumber}</span>}
+                    {r.cost&&<span style={{background:"#f0fdf4",color:"#16a34a",fontSize:"12px",fontWeight:700}}>💰 {r.cost}</span>}
+                    {r.mileage&&<span style={{color:"#6b7280",fontSize:"12px"}}>🛣️ {r.mileage} mi</span>}
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"4px",flexWrap:"wrap"}}>
+                    <span style={{background:BLUE_BG,color:BLUE_MID,border:`1px solid ${BLUE_BORDER}`,padding:"2px 9px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>
+                      🚗 {r.asset?.vehicleNumber?`#${r.asset.vehicleNumber} · `:""}{r.asset?.title||`Asset ${r.assetId}`}
+                    </span>
+                    {r.asset?.location&&<span style={{color:"#9ca3af",fontSize:"11px"}}>📍 {r.asset.location}</span>}
+                  </div>
+                  {r.vendor&&<div style={{color:"#374151",fontSize:"13px",fontWeight:600,marginBottom:"2px"}}>{r.vendor}</div>}
+                  {r.description&&<div style={{color:"#6b7280",fontSize:"13px",lineHeight:"1.5"}}>{r.description}</div>}
+                  {r.location&&<div style={{color:"#9ca3af",fontSize:"12px",marginTop:"4px"}}>Serviced at: {r.location}</div>}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -664,6 +776,7 @@ export default function AssetTracker() {
   const [loanAsset,setLoanAsset]=useState(null);
   const [showLocations,setShowLocations]=useState(false);
   const [showExport,setShowExport]=useState(false);
+  const [showMaintOverview,setShowMaintOverview]=useState(false);
   const [saving,setSaving]=useState(false);
   const [sortField,setSortField]=useState("id");
   const [sortDir,setSortDir]=useState("asc");
@@ -699,6 +812,21 @@ export default function AssetTracker() {
     needsRepair:assets.filter(a=>a.status==="Broken - Needs Repair").length,
     outOfService:assets.filter(a=>a.status==="Out of Service").length,
   }),[assets]);
+
+  const expirationAlerts=useMemo(()=>{
+    const today=new Date(); today.setHours(0,0,0,0);
+    const soon=new Date(today); soon.setDate(soon.getDate()+45);
+    const alerts=[];
+    for(const a of assets){
+      if(!["Vehicles","Golf Carts"].includes(a.category))continue;
+      const tagExp=parseMMDDYYYY(a.tagExpires);
+      if(tagExp){
+        if(tagExp<today)alerts.push({asset:a,type:"Tag EXPIRED",date:a.tagExpires,severity:"expired"});
+        else if(tagExp<=soon)alerts.push({asset:a,type:"Tag expires soon",date:a.tagExpires,severity:"warning"});
+      }
+    }
+    return alerts.sort((a,b)=>(parseMMDDYYYY(a.date)||0)-(parseMMDDYYYY(b.date)||0));
+  },[assets]);
 
   // Asset CRUD
   const handleAddAsset=async(form)=>{
@@ -843,6 +971,10 @@ export default function AssetTracker() {
           <button onClick={()=>setShowExport(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:"8px",color:"#16a34a",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
             📊 Export
           </button>
+          <button onClick={()=>setShowMaintOverview(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:"8px",color:"#ea580c",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit",position:"relative"}}>
+            🔧 Maintenance
+            {Object.values(maintenance).flat().length>0&&<span style={{background:"#ea580c",color:"#fff",borderRadius:"20px",fontSize:"10px",fontWeight:700,padding:"1px 6px",marginLeft:"2px"}}>{Object.values(maintenance).flat().length}</span>}
+          </button>
           <button onClick={()=>setShowLocations(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#f9fafb",border:"1px solid #d1d5db",borderRadius:"8px",color:"#374151",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
             📍 Locations
           </button>
@@ -853,12 +985,44 @@ export default function AssetTracker() {
 
         <div style={{padding:"28px 32px",maxWidth:"1400px",margin:"0 auto"}}>
           {/* Stats */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"16px",marginBottom:"24px"}}>
-            <StatCard label="Total Assets" value={stats.total} bg={BLUE_BG} icon="📦"/>
-            <StatCard label="Checked Out" value={stats.checkedOut} bg="#ffedd5" icon="📤"/>
-            <StatCard label="Needs Repair" value={stats.needsRepair} bg="#fee2e2" icon="🔧"/>
-            <StatCard label="Out of Service" value={stats.outOfService} bg="#f3f4f6" icon="⛔"/>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"16px",marginBottom:"16px"}}>
+            <StatCard label="Total Assets" value={stats.total} bg={BLUE_BG} icon="📦"
+              onClick={()=>{setStatusFilter("All");setLoanFilter("All");setCategory("All");setSearch("");}}
+              active={statusFilter==="All"&&loanFilter==="All"&&category==="All"&&!search.trim()}/>
+            <StatCard label="Checked Out" value={stats.checkedOut} bg="#ffedd5" icon="📤"
+              onClick={()=>{setLoanFilter(loanFilter==="out"?"All":"out");setStatusFilter("All");setCategory("All");}}
+              active={loanFilter==="out"}/>
+            <StatCard label="Needs Repair" value={stats.needsRepair} bg="#fee2e2" icon="🔧"
+              onClick={()=>{setStatusFilter(statusFilter==="Broken - Needs Repair"?"All":"Broken - Needs Repair");setLoanFilter("All");setCategory("All");}}
+              active={statusFilter==="Broken - Needs Repair"}/>
+            <StatCard label="Out of Service" value={stats.outOfService} bg="#f3f4f6" icon="⛔"
+              onClick={()=>{setStatusFilter(statusFilter==="Out of Service"?"All":"Out of Service");setLoanFilter("All");setCategory("All");}}
+              active={statusFilter==="Out of Service"}/>
           </div>
+
+          {/* Expiration Alerts */}
+          {expirationAlerts.length>0&&(
+            <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:"12px",padding:"14px 18px",marginBottom:"16px"}}>
+              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
+                <span style={{fontSize:"16px"}}>⚠️</span>
+                <span style={{color:"#92400e",fontSize:"12px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em"}}>Vehicle Tag Alerts — {expirationAlerts.length} vehicle{expirationAlerts.length!==1?"s":""} need attention</span>
+              </div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
+                {expirationAlerts.map((al,i)=>(
+                  <button key={i} onClick={()=>setSelected(al.asset)}
+                    style={{display:"flex",alignItems:"center",gap:"7px",background:al.severity==="expired"?"#fee2e2":"#fff7ed",border:`1px solid ${al.severity==="expired"?"#fca5a5":"#fed7aa"}`,borderRadius:"8px",padding:"6px 12px",cursor:"pointer",fontFamily:"inherit"}}>
+                    <span style={{fontSize:"14px"}}>{al.severity==="expired"?"🔴":"🟡"}</span>
+                    <div style={{textAlign:"left"}}>
+                      <div style={{color:al.severity==="expired"?"#dc2626":"#92400e",fontSize:"12px",fontWeight:700}}>
+                        {al.asset.vehicleNumber?`#${al.asset.vehicleNumber} · `:""}{al.asset.title}
+                      </div>
+                      <div style={{color:al.severity==="expired"?"#ef4444":"#b45309",fontSize:"11px"}}>{al.type}: {al.date}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Category Tabs */}
           <div style={{display:"flex",gap:"6px",flexWrap:"wrap",marginBottom:"18px"}}>
@@ -965,6 +1129,7 @@ export default function AssetTracker() {
         {loanAsset&&<LoanModal asset={loanAsset} onClose={()=>setLoanAsset(null)} onSave={handleLoanSave}/>}
         {showAdd&&<AddModal onClose={()=>setShowAdd(false)} onSave={handleAddAsset} nextId={nextId} locations={locations} saving={saving}/>}
         {showLocations&&<LocationsPanel onClose={()=>setShowLocations(false)} locations={locations} onAdd={handleAddLocation} onUpdate={handleUpdateLocation} onDelete={handleDeleteLocation}/>}
+        {showMaintOverview&&<MaintenanceOverview onClose={()=>setShowMaintOverview(false)} maintenance={maintenance} assets={assets}/>}
         {showExport&&<ExportModal onClose={()=>setShowExport(false)} assets={assets} filteredAssets={filtered} category={category}/>}
       </div>
     </>
