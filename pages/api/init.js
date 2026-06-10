@@ -84,6 +84,26 @@ export default async function handler(req, res) {
       )
     `;
 
+    // Add unique constraint on name if it doesn't exist yet (safe to run repeatedly)
+    await sql`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM pg_constraint WHERE conname = 'locations_name_unique'
+        ) THEN
+          ALTER TABLE locations ADD CONSTRAINT locations_name_unique UNIQUE (name);
+        END IF;
+      END $$
+    `;
+
+    // Deduplicate any existing duplicate location names, keeping the lowest id
+    await sql`
+      DELETE FROM locations
+      WHERE id NOT IN (
+        SELECT MIN(id) FROM locations GROUP BY name
+      )
+    `;
+
     await sql`
       CREATE TABLE IF NOT EXISTS maintenance_records (
         id SERIAL PRIMARY KEY,
@@ -140,16 +160,13 @@ export default async function handler(req, res) {
       }
     }
 
-    // Seed locations if none exist
-    const locCount = await sql`SELECT COUNT(*) as count FROM locations`;
-    if (parseInt(locCount[0].count) === 0) {
-      for (const loc of SEED_LOCATIONS) {
-        await sql`
-          INSERT INTO locations (name, address, contact, email, phone)
-          VALUES (${loc.name}, ${loc.address||""}, ${loc.contact||""}, ${loc.email||""}, ${loc.phone||""})
-          ON CONFLICT DO NOTHING
-        `;
-      }
+    // Seed locations — skips any name that already exists
+    for (const loc of SEED_LOCATIONS) {
+      await sql`
+        INSERT INTO locations (name, address, contact, email, phone)
+        VALUES (${loc.name}, ${loc.address||""}, ${loc.contact||""}, ${loc.email||""}, ${loc.phone||""})
+        ON CONFLICT (name) DO NOTHING
+      `;
     }
 
     res.status(200).json({ ok: true, seeded: count === 0, assetCount: count === 0 ? SEED_ASSETS.length : count });
