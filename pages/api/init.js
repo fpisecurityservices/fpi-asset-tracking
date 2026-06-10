@@ -84,7 +84,14 @@ export default async function handler(req, res) {
       )
     `;
 
-    // Add unique constraint on name if it doesn't exist yet (safe to run repeatedly)
+    // Deduplicate first, then add unique constraint
+    await sql`
+      DELETE FROM locations
+      WHERE id NOT IN (
+        SELECT MIN(id) FROM locations GROUP BY name
+      )
+    `;
+
     await sql`
       DO $$
       BEGIN
@@ -94,14 +101,6 @@ export default async function handler(req, res) {
           ALTER TABLE locations ADD CONSTRAINT locations_name_unique UNIQUE (name);
         END IF;
       END $$
-    `;
-
-    // Deduplicate any existing duplicate location names, keeping the lowest id
-    await sql`
-      DELETE FROM locations
-      WHERE id NOT IN (
-        SELECT MIN(id) FROM locations GROUP BY name
-      )
     `;
 
     await sql`
