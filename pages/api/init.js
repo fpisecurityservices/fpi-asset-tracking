@@ -1,5 +1,6 @@
 import { getDb } from "../../lib/db";
 import { SEED_ASSETS } from "../../lib/seedAssets";
+import { SEED_LOCATIONS } from "../../lib/seedLocations";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
@@ -83,6 +84,22 @@ export default async function handler(req, res) {
       )
     `;
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS maintenance_records (
+        id SERIAL PRIMARY KEY,
+        asset_id VARCHAR(30) REFERENCES assets(id) ON DELETE CASCADE,
+        service_date TEXT DEFAULT '',
+        vendor TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        invoice_number TEXT DEFAULT '',
+        cost TEXT DEFAULT '',
+        mileage TEXT DEFAULT '',
+        location TEXT DEFAULT '',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+
     // Seed assets only if table is empty
     const countResult = await sql`SELECT COUNT(*) as count FROM assets`;
     const count = parseInt(countResult[0].count);
@@ -119,6 +136,18 @@ export default async function handler(req, res) {
             COALESCE(is_custom, false)
           FROM json_populate_recordset(NULL::assets, ${jsonData}::json)
           ON CONFLICT (id) DO NOTHING
+        `;
+      }
+    }
+
+    // Seed locations if none exist
+    const locCount = await sql`SELECT COUNT(*) as count FROM locations`;
+    if (parseInt(locCount[0].count) === 0) {
+      for (const loc of SEED_LOCATIONS) {
+        await sql`
+          INSERT INTO locations (name, address, contact, email, phone)
+          VALUES (${loc.name}, ${loc.address||""}, ${loc.contact||""}, ${loc.email||""}, ${loc.phone||""})
+          ON CONFLICT DO NOTHING
         `;
       }
     }
