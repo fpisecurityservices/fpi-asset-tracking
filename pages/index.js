@@ -23,22 +23,26 @@ const STATUS_CONFIG = {
 const ALL_STATUSES = ["Working Condition","Working Condition - Out of Warranty","Broken - Needs Repair","Out of Service","Out of Service- Traded In","Missing","Restrict Loan"];
 const CATEGORIES = ["All","Laptops","Computers","Monitors","Printers","Scanners","External Drives","Mobile Device","Office Phones","Radios","Body Cameras","GPS Units","Vehicles","Golf Carts","Tactical Flashlight","Vehicle Accessories","Firearms"];
 
-const BLUE="#1d4ed8", BLUE_MID="#2563eb", BLUE_BG="#eff6ff", BLUE_BORDER="#bfdbfe";
+const PRIMARY="#006090", HOVER_BLUE="#00507A", DARK_NAVY="#0F3554", DEEP_NAVY="#0D2A3F", STEEL_BLUE="#27516A", BLUE_GRAY="#8998B1", NEUTRAL_DARK="#1A1E26", PAGE_BG="#F4F6F8";
+const BLUE=PRIMARY, BLUE_MID=PRIMARY, BLUE_BG="#E8EDF4", BLUE_BORDER="#C8D0DA";
 
-const inp = (x={}) => ({background:"#fff",border:"1px solid #d1d5db",borderRadius:"7px",color:"#111827",padding:"8px 12px",fontSize:"13px",outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",...x});
+const inp = (x={}) => ({background:"#fff",border:"1.5px solid #C8D0DA",borderRadius:"6px",color:NEUTRAL_DARK,padding:"8px 12px",fontSize:"13px",outline:"none",fontFamily:"inherit",width:"100%",boxSizing:"border-box",...x});
 const sel = (x={}) => inp({cursor:"pointer",...x});
 
 function Btn({children,onClick,variant="primary",disabled,style={}}) {
-  const base = {padding:"9px 18px",borderRadius:"8px",fontSize:"13px",fontWeight:700,cursor:disabled?"default":"pointer",border:"none",fontFamily:"inherit",opacity:disabled?0.6:1,...style};
+  const base = {padding:"9px 18px",borderRadius:"4px",fontSize:"13px",fontWeight:600,cursor:disabled?"default":"pointer",border:"none",fontFamily:"'Barlow',inherit",letterSpacing:"0.02em",opacity:disabled?0.6:1,transition:"background 0.15s,box-shadow 0.15s",...style};
   const variants = {
-    primary:{background:BLUE_MID,color:"#fff",boxShadow:`0 2px 6px ${BLUE_MID}40`},
-    secondary:{background:"#f9fafb",border:"1px solid #d1d5db",color:"#374151"},
+    primary:{background:PRIMARY,color:"#fff",boxShadow:`0 4px 20px rgba(0,96,144,0.35)`},
+    secondary:{background:"#F4F6F8",border:"1px solid #C8D0DA",color:NEUTRAL_DARK},
     danger:{background:"#fee2e2",color:"#dc2626",border:"1px solid #fca5a5"},
     success:{background:"#dcfce7",color:"#16a34a",border:"1px solid #86efac"},
-    ghost:{background:"transparent",border:"1px solid #d1d5db",color:"#374151"},
+    ghost:{background:"transparent",border:"1.5px solid #C8D0DA",color:NEUTRAL_DARK},
     orange:{background:"#fff7ed",border:"1px solid #fed7aa",color:"#ea580c"},
   };
-  return <button onClick={onClick} disabled={disabled} style={{...base,...variants[variant]}}>{children}</button>;
+  return <button onClick={onClick} disabled={disabled} style={{...base,...variants[variant]}}
+    onMouseEnter={!disabled&&variant==="primary"?e=>{e.currentTarget.style.background=HOVER_BLUE;}:undefined}
+    onMouseLeave={!disabled&&variant==="primary"?e=>{e.currentTarget.style.background=PRIMARY;}:undefined}
+  >{children}</button>;
 }
 function StatusBadge({status}) {
   const c=STATUS_CONFIG[status]||STATUS_CONFIG[""];
@@ -49,11 +53,11 @@ function LoanBadge({status}) {
   return <span style={{background:out?"#ffedd5":"#dcfce7",color:out?"#ea580c":"#16a34a",border:`1px solid ${out?"#fdba7440":"#86efac40"}`,padding:"3px 9px",borderRadius:"20px",fontSize:"11px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em"}}>{out?"OUT":"IN"}</span>;
 }
 function Label({children}) {
-  return <div style={{color:"#6b7280",fontSize:"11px",fontWeight:600,letterSpacing:"0.05em",marginBottom:"5px",textTransform:"uppercase"}}>{children}</div>;
+  return <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:600,letterSpacing:"0.06em",marginBottom:"5px",textTransform:"uppercase",fontFamily:"'Barlow',inherit"}}>{children}</div>;
 }
 function SecTitle({children}) {
-  return <div style={{color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"14px",paddingBottom:"8px",borderBottom:"2px solid #e5e7eb",display:"flex",alignItems:"center",gap:"8px"}}>
-    <div style={{width:"3px",height:"14px",background:BLUE_MID,borderRadius:"2px"}}/>{children}
+  return <div style={{color:PRIMARY,fontSize:"10px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:"14px",paddingBottom:"8px",borderBottom:`2px solid ${BLUE_BG}`,display:"flex",alignItems:"center",gap:"8px",fontFamily:"'Rajdhani','Barlow',inherit"}}>
+    <div style={{width:"3px",height:"14px",background:PRIMARY,borderRadius:"2px"}}/>{children}
   </div>;
 }
 function Grid({children}) { return <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px"}}>{children}</div>; }
@@ -135,14 +139,14 @@ function ExportModal({onClose,assets,filteredAssets,category}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"relative",zIndex:10,background:"#fff",borderRadius:"16px",width:"560px",maxWidth:"95vw",maxHeight:"85vh",overflowY:"auto",boxShadow:"0 20px 60px rgba(0,0,0,0.18)"}}>
-        <div style={{position:"sticky",top:0,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"20px 24px",display:"flex",alignItems:"center",gap:"14px",borderRadius:"16px 16px 0 0"}}>
-          <div style={{width:"42px",height:"42px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>📊</div>
+      <div style={{position:"relative",zIndex:10,background:"#fff",borderRadius:"10px",width:"560px",maxWidth:"95vw",maxHeight:"85vh",overflowY:"auto",boxShadow:"0 8px 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"20px 24px",display:"flex",alignItems:"center",gap:"14px",borderRadius:"10px 10px 0 0"}}>
+          <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>📊</div>
           <div style={{flex:1}}>
-            <div style={{color:"#16a34a",fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>EXPORT REPORTS</div>
-            <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>Download Asset Data</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>EXPORT REPORTS</div>
+            <div style={{color:"#fff",fontSize:"17px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>Download Asset Data</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"34px",height:"34px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
 
         <div style={{padding:"20px 24px"}}>
@@ -156,7 +160,7 @@ function ExportModal({onClose,assets,filteredAssets,category}) {
                   <div style={{color:"#111827",fontWeight:700,fontSize:"14px"}}>{ex.label}</div>
                   <div style={{color:"#9ca3af",fontSize:"12px",marginTop:"2px"}}>{ex.desc}</div>
                 </div>
-                <div style={{color:BLUE_MID,fontSize:"12px",fontWeight:600,background:BLUE_BG,padding:"4px 10px",borderRadius:"6px",whiteSpace:"nowrap"}}>↓ CSV</div>
+                <div style={{color:PRIMARY,fontSize:"12px",fontWeight:600,background:BLUE_BG,padding:"4px 10px",borderRadius:"4px",whiteSpace:"nowrap",border:`1px solid ${BLUE_BORDER}`}}>↓ CSV</div>
               </button>
             ))}
           </div>
@@ -168,14 +172,14 @@ function ExportModal({onClose,assets,filteredAssets,category}) {
               return (
                 <button key={cat} onClick={()=>exportCSV(assets.filter(a=>a.category===cat),`FPI_${cat.replace(/\s+/g,"_")}_${date}.csv`)}
                   style={{display:"flex",alignItems:"center",gap:"10px",padding:"10px 12px",background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:"8px",cursor:"pointer",textAlign:"left",fontFamily:"inherit"}}
-                  onMouseEnter={e=>{e.currentTarget.style.background="#eff6ff";e.currentTarget.style.borderColor=BLUE_BORDER;}}
-                  onMouseLeave={e=>{e.currentTarget.style.background="#f9fafb";e.currentTarget.style.borderColor="#e5e7eb";}}>
+                  onMouseEnter={e=>{e.currentTarget.style.background=BLUE_BG;e.currentTarget.style.borderColor=PRIMARY;}}
+                  onMouseLeave={e=>{e.currentTarget.style.background=PAGE_BG;e.currentTarget.style.borderColor="#E2E6ED";}}>
                   <span style={{fontSize:"16px"}}>{CATEGORY_ICONS[cat]||"📦"}</span>
                   <div style={{flex:1}}>
                     <div style={{color:"#111827",fontWeight:600,fontSize:"12px"}}>{cat}</div>
                     <div style={{color:"#9ca3af",fontSize:"11px"}}>{count} assets</div>
                   </div>
-                  <span style={{color:BLUE_MID,fontSize:"11px"}}>↓</span>
+                  <span style={{color:PRIMARY,fontSize:"11px"}}>↓</span>
                 </button>
               );
             })}
@@ -198,12 +202,12 @@ function LoanModal({asset,onClose,onSave}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:80,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(3px)"}}/>
-      <div style={{position:"relative",zIndex:10,background:"#fff",borderRadius:"16px",padding:"28px",width:"400px",maxWidth:"90vw",boxShadow:"0 20px 60px rgba(0,0,0,0.15)"}}>
+      <div style={{position:"relative",zIndex:10,background:"#fff",borderRadius:"10px",padding:"28px",width:"400px",maxWidth:"90vw",boxShadow:"0 8px 32px rgba(0,0,0,0.16)"}}>
         <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px"}}>
-          <div style={{width:"44px",height:"44px",background:isOut?"#dcfce7":"#eff6ff",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px"}}>{isOut?"✅":"📤"}</div>
+          <div style={{width:"44px",height:"44px",background:isOut?BLUE_BG:BLUE_BG,borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",border:`1px solid ${BLUE_BORDER}`}}>{isOut?"✅":"📤"}</div>
           <div>
-            <div style={{color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>{isOut?"CHECK IN":"LOAN OUT"}</div>
-            <div style={{color:"#111827",fontSize:"16px",fontWeight:700}}>{asset.title}</div>
+            <div style={{color:PRIMARY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{isOut?"CHECK IN":"LOAN OUT"}</div>
+            <div style={{color:NEUTRAL_DARK,fontSize:"16px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{asset.title}</div>
           </div>
         </div>
         {isOut ? (
@@ -237,14 +241,14 @@ function EditModal({asset,onClose,onSave,locations,saving}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:70,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"relative",zIndex:10,width:"580px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.12)"}}>
-        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
-          <div style={{width:"42px",height:"42px",background:BLUE_BG,border:`1px solid ${BLUE_BORDER}`,borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>✏️</div>
+      <div style={{position:"relative",zIndex:10,width:"580px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:PAGE_BG,borderLeft:"1px solid #E2E6ED",boxShadow:"-8px 0 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
+          <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>✏️</div>
           <div style={{flex:1}}>
-            <div style={{color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>EDIT ASSET #{asset.id}</div>
-            <div style={{color:"#111827",fontSize:"16px",fontWeight:700}}>{asset.title}</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>EDIT ASSET #{asset.id}</div>
+            <div style={{color:"#fff",fontSize:"16px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{asset.title}</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"34px",height:"34px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
         <div style={{padding:"24px",display:"flex",flexDirection:"column",gap:"0"}}>
           <div style={{marginBottom:"28px"}}><SecTitle>Identification</SecTitle><Grid>
@@ -297,14 +301,14 @@ function AddModal({onClose,onSave,nextId,locations,saving}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"relative",zIndex:10,width:"580px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.12)"}}>
-        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
-          <div style={{width:"42px",height:"42px",background:BLUE_BG,border:`1px solid ${BLUE_BORDER}`,borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>➕</div>
+      <div style={{position:"relative",zIndex:10,width:"580px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:PAGE_BG,borderLeft:"1px solid #E2E6ED",boxShadow:"-8px 0 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
+          <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>+</div>
           <div style={{flex:1}}>
-            <div style={{color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>NEW ASSET</div>
-            <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>Add to Inventory</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>NEW ASSET</div>
+            <div style={{color:"#fff",fontSize:"17px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>Add to Inventory</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"34px",height:"34px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
         <div style={{padding:"24px",display:"flex",flexDirection:"column",gap:"0"}}>
           <div style={{marginBottom:"28px"}}><SecTitle>Identification</SecTitle><Grid>
@@ -369,18 +373,17 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"relative",zIndex:10,width:"540px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.12)"}}>
-        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
-          <div style={{width:"42px",height:"42px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>📍</div>
+      <div style={{position:"relative",zIndex:10,width:"540px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:PAGE_BG,borderLeft:"1px solid #E2E6ED",boxShadow:"-8px 0 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
+          <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>📍</div>
           <div style={{flex:1}}>
-            <div style={{color:"#16a34a",fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>MANAGE LOCATIONS</div>
-            <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>{locations.length} Location{locations.length!==1?"s":""}</div>
-
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>MANAGE LOCATIONS</div>
+            <div style={{color:"#fff",fontSize:"17px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{locations.length} Location{locations.length!==1?"s":""}</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"34px",height:"34px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
         <div style={{padding:"24px"}}>
-          <div style={{background:"#fff",borderRadius:"12px",border:"1px solid #e5e7eb",padding:"20px",marginBottom:"24px",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+          <div style={{background:"#fff",borderRadius:"8px",border:"1px solid #E2E6ED",padding:"20px",marginBottom:"24px",boxShadow:"0 2px 12px rgba(0,0,0,.07)"}}>
             <div style={{color:"#111827",fontSize:"13px",fontWeight:700,marginBottom:"14px"}}>{editId!=null?"✏️ Edit Location":"➕ Add New Location"}</div>
             <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
               <div><Label>Location Name *</Label><input style={inp()} value={form.name} onChange={e=>sf("name",e.target.value)} placeholder="e.g. FPI Main Office"/></div>
@@ -405,18 +408,20 @@ function LocationsPanel({onClose,locations,onAdd,onUpdate,onDelete}) {
           <div style={{display:"flex",flexDirection:"column",gap:"10px",paddingBottom:"40px"}}>
             {visibleLocations.length===0&&<div style={{textAlign:"center",color:"#d1d5db",padding:"32px",fontSize:"14px"}}>{locSearch?"No locations match your search.":"No locations yet."}</div>}
             {visibleLocations.map(loc=>(
-              <div key={loc.id} style={{background:"#fff",borderRadius:"10px",border:"1px solid #e5e7eb",padding:"14px 16px",boxShadow:"0 1px 3px rgba(0,0,0,0.04)"}}>
+              <div key={loc.id} style={{background:"#fff",borderRadius:"8px",border:"1px solid #E2E6ED",padding:"14px 16px",boxShadow:"0 2px 12px rgba(0,0,0,.07)",transition:"transform 0.15s,box-shadow 0.15s"}}
+                onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 4px 16px rgba(0,96,144,0.12)";}}
+                onMouseLeave={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 2px 12px rgba(0,0,0,.07)";}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:"10px"}}>
                   <div style={{flex:1}}>
-                    <div style={{color:"#111827",fontWeight:700,fontSize:"14px",marginBottom:"3px"}}>{loc.name}</div>
-                    {loc.address&&<div style={{color:"#6b7280",fontSize:"12px",marginBottom:"2px"}}>📍 {loc.address}</div>}
-                    {loc.contact&&<div style={{color:"#6b7280",fontSize:"12px",marginBottom:"2px"}}>👤 {loc.contact}</div>}
-                    {loc.phone&&<div style={{color:"#6b7280",fontSize:"12px",marginBottom:"2px"}}>📞 {loc.phone}</div>}
-                    {loc.email&&<div style={{color:"#6b7280",fontSize:"12px"}}>✉️ {loc.email}</div>}
+                    <div style={{color:NEUTRAL_DARK,fontWeight:700,fontSize:"14px",marginBottom:"3px",fontFamily:"'Barlow',inherit"}}>{loc.name}</div>
+                    {loc.address&&<div style={{color:STEEL_BLUE,fontSize:"12px",marginBottom:"2px"}}>{loc.address}</div>}
+                    {loc.contact&&<div style={{color:BLUE_GRAY,fontSize:"12px",marginBottom:"2px"}}>{loc.contact}</div>}
+                    {loc.phone&&<div style={{color:BLUE_GRAY,fontSize:"12px",marginBottom:"2px"}}>{loc.phone}</div>}
+                    {loc.email&&<div style={{color:PRIMARY,fontSize:"12px"}}>{loc.email}</div>}
                   </div>
                   <div style={{display:"flex",gap:"6px",flexShrink:0}}>
-                    <button onClick={()=>{setEditId(loc.id);setForm({name:loc.name,address:loc.address||"",contact:loc.contact||"",email:loc.email||"",phone:loc.phone||""});}} style={{background:"#eff6ff",border:`1px solid ${BLUE_BORDER}`,color:BLUE_MID,cursor:"pointer",padding:"5px 10px",borderRadius:"6px",fontSize:"12px",fontWeight:600}}>Edit</button>
-                    <button onClick={()=>onDelete(loc.id)} style={{background:"#fee2e2",border:"1px solid #fca5a5",color:"#dc2626",cursor:"pointer",padding:"5px 10px",borderRadius:"6px",fontSize:"12px",fontWeight:600}}>Delete</button>
+                    <button onClick={()=>{setEditId(loc.id);setForm({name:loc.name,address:loc.address||"",contact:loc.contact||"",email:loc.email||"",phone:loc.phone||""});}} style={{background:BLUE_BG,border:`1.5px solid ${BLUE_BORDER}`,color:PRIMARY,cursor:"pointer",padding:"5px 10px",borderRadius:"4px",fontSize:"12px",fontWeight:600,fontFamily:"'Barlow',inherit"}}>Edit</button>
+                    <button onClick={()=>onDelete(loc.id)} style={{background:"#fee2e2",border:"1px solid #fca5a5",color:"#dc2626",cursor:"pointer",padding:"5px 10px",borderRadius:"4px",fontSize:"12px",fontWeight:600,fontFamily:"'Barlow',inherit"}}>Delete</button>
                   </div>
                 </div>
               </div>
@@ -545,20 +550,20 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
   return (
     <div style={{position:"fixed",inset:0,zIndex:50,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.35)",backdropFilter:"blur(3px)"}}/>
-      <div style={{position:"relative",zIndex:10,width:"500px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.1)"}}>
-        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"16px 20px",display:"flex",alignItems:"flex-start",gap:"12px"}}>
-          <div style={{width:"46px",height:"46px",flexShrink:0,background:BLUE_BG,border:`1px solid ${BLUE_BORDER}`,borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px"}}>
+      <div style={{position:"relative",zIndex:10,width:"500px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:PAGE_BG,borderLeft:`1px solid #E2E6ED`,boxShadow:"-8px 0 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"16px 20px",display:"flex",alignItems:"flex-start",gap:"12px"}}>
+          <div style={{width:"46px",height:"46px",flexShrink:0,background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px"}}>
             {CATEGORY_ICONS[asset.category]||"📦"}
           </div>
           <div style={{flex:1,minWidth:0}}>
-            <div style={{color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:"1px"}}>ASSET #{asset.id}</div>
-            <div style={{color:"#111827",fontSize:"16px",fontWeight:700,lineHeight:1.25}}>{asset.title||"Untitled"}</div>
-            <div style={{color:"#9ca3af",fontSize:"12px",marginTop:"2px"}}>{asset.category}{asset.location?` · ${asset.location}`:""}</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",marginBottom:"1px",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>ASSET #{asset.id}</div>
+            <div style={{color:"#fff",fontSize:"16px",fontWeight:700,lineHeight:1.25,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{asset.title||"Untitled"}</div>
+            <div style={{color:BLUE_GRAY,fontSize:"12px",marginTop:"2px"}}>{asset.category}{asset.location?` · ${asset.location}`:""}</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"32px",height:"32px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"32px",height:"32px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>×</button>
         </div>
 
-        <div style={{background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"12px 20px",display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}}>
+        <div style={{background:"#fff",borderBottom:"1px solid #E2E6ED",padding:"12px 20px",display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap"}}>
           <StatusBadge status={asset.status}/>
           <LoanBadge status={asset.loanStatus}/>
           <div style={{flex:1}}/>
@@ -579,10 +584,10 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
           </div>
         )}
 
-        <div style={{margin:"16px 16px 0",background:"#fff",borderRadius:"12px",border:"1px solid #e5e7eb",padding:"18px",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-          <div style={{color:"#111827",fontSize:"13px",fontWeight:700,marginBottom:"14px",display:"flex",alignItems:"center",gap:"8px"}}>
-            📝 Notes
-            {assetNotes.length>0&&<span style={{background:BLUE_BG,color:BLUE_MID,border:`1px solid ${BLUE_BORDER}`,padding:"1px 8px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>{assetNotes.length}</span>}
+        <div style={{margin:"16px 16px 0",background:"#fff",borderRadius:"8px",border:"1px solid #E2E6ED",padding:"18px",boxShadow:"0 2px 12px rgba(0,0,0,.07)"}}>
+          <div style={{color:NEUTRAL_DARK,fontSize:"12px",fontWeight:700,marginBottom:"14px",display:"flex",alignItems:"center",gap:"8px",textTransform:"uppercase",letterSpacing:"0.08em",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>
+            Notes
+            {assetNotes.length>0&&<span style={{background:BLUE_BG,color:PRIMARY,border:`1px solid ${BLUE_BORDER}`,padding:"1px 8px",borderRadius:"4px",fontSize:"11px",fontWeight:700}}>{assetNotes.length}</span>}
           </div>
           {assetNotes.length===0?<div style={{color:"#d1d5db",fontSize:"13px",marginBottom:"12px",fontStyle:"italic"}}>No notes yet.</div>
           :<div style={{display:"flex",flexDirection:"column",gap:"8px",marginBottom:"12px"}}>
@@ -620,8 +625,8 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
 
         <div style={{padding:"16px 16px 40px",display:"flex",flexDirection:"column",gap:"12px"}}>
           {relevant.map(group=>(
-            <div key={group.group} style={{background:"#fff",borderRadius:"12px",boxShadow:"0 1px 4px rgba(0,0,0,0.05)",overflow:"hidden",border:"1px solid #e5e7eb"}}>
-              <div style={{background:BLUE_BG,padding:"9px 16px",color:BLUE_MID,fontSize:"11px",fontWeight:700,letterSpacing:"0.07em",textTransform:"uppercase",borderBottom:`1px solid ${BLUE_BORDER}`}}>{group.group}</div>
+            <div key={group.group} style={{background:"#fff",borderRadius:"8px",boxShadow:"0 2px 12px rgba(0,0,0,.07)",overflow:"hidden",border:"1px solid #E2E6ED"}}>
+              <div style={{background:BLUE_BG,padding:"9px 16px",color:PRIMARY,fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase",borderBottom:`1px solid ${BLUE_BORDER}`,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{group.group}</div>
               <div style={{padding:"14px 16px",display:"flex",flexDirection:"column",gap:"10px"}}>
                 {group.items.filter(item=>typeof item.value==="string"?item.value&&item.value.trim()!=="":item.value!=null&&item.value!==undefined&&item.value!=="").map(item=>(
                   <div key={item.label} style={{display:"flex",alignItems:item.multiline?"flex-start":"center",gap:"12px"}}>
@@ -644,15 +649,16 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
 // ─── STAT CARD ────────────────────────────────────────────────────────────────
 function StatCard({label,value,bg,icon,onClick,active}) {
   return (
-    <div onClick={onClick} style={{background:"#fff",border:`2px solid ${active?"#2563eb":"#e5e7eb"}`,borderRadius:"12px",padding:"18px 20px",display:"flex",alignItems:"center",gap:"14px",boxShadow:active?`0 0 0 3px ${BLUE_BG}`:"0 1px 4px rgba(0,0,0,0.05)",cursor:onClick?"pointer":"default",transition:"all 0.15s",userSelect:"none"}}
-      onMouseEnter={onClick?e=>{if(!active)e.currentTarget.style.borderColor="#93c5fd";}:undefined}
-      onMouseLeave={onClick?e=>{if(!active)e.currentTarget.style.borderColor="#e5e7eb";}:undefined}>
-      <div style={{width:"46px",height:"46px",background:bg,borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px"}}>{icon}</div>
+    <div onClick={onClick}
+      style={{background:"#fff",border:`2px solid ${active?PRIMARY:"#E2E6ED"}`,borderRadius:"8px",padding:"18px 20px",display:"flex",alignItems:"center",gap:"14px",boxShadow:active?`0 4px 20px rgba(0,96,144,0.18)`:"0 2px 12px rgba(0,0,0,.07)",cursor:onClick?"pointer":"default",transition:"all 0.15s",userSelect:"none"}}
+      onMouseEnter={onClick?e=>{if(!active){e.currentTarget.style.borderColor=BLUE_GRAY;e.currentTarget.style.transform="translateY(-2px)";}}:undefined}
+      onMouseLeave={onClick?e=>{if(!active){e.currentTarget.style.borderColor="#E2E6ED";e.currentTarget.style.transform="translateY(0)";}}:undefined}>
+      <div style={{width:"46px",height:"46px",background:bg,borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>{icon}</div>
       <div>
-        <div style={{color:active?BLUE_MID:"#9ca3af",fontSize:"11px",fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase",marginBottom:"3px"}}>{label}</div>
-        <div style={{color:"#111827",fontSize:"26px",fontWeight:800,lineHeight:1}}>{value}</div>
+        <div style={{color:active?PRIMARY:BLUE_GRAY,fontSize:"11px",fontWeight:600,letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:"4px",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{label}</div>
+        <div style={{color:NEUTRAL_DARK,fontSize:"28px",fontWeight:700,lineHeight:1,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>{value}</div>
       </div>
-      {onClick&&<div style={{marginLeft:"auto",color:active?BLUE_MID:"#d1d5db",fontSize:"11px",fontWeight:700}}>{active?"✓ Active":"Filter"}</div>}
+      {onClick&&<div style={{marginLeft:"auto",color:active?PRIMARY:"#C8D0DA",fontSize:"11px",fontWeight:700,letterSpacing:"0.04em"}}>{active?"ACTIVE":"FILTER"}</div>}
     </div>
   );
 }
@@ -703,17 +709,17 @@ function MaintenanceOverview({onClose,maintenance,assets}) {
   return (
     <div style={{position:"fixed",inset:0,zIndex:75,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
       <div onClick={onClose} style={{position:"absolute",inset:0,background:"rgba(15,23,42,0.4)",backdropFilter:"blur(4px)"}}/>
-      <div style={{position:"relative",zIndex:10,width:"740px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:"#f9fafb",borderLeft:"1px solid #e5e7eb",boxShadow:"-8px 0 40px rgba(0,0,0,0.12)"}}>
-        <div style={{position:"sticky",top:0,zIndex:10,background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
-          <div style={{width:"42px",height:"42px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>🔧</div>
+      <div style={{position:"relative",zIndex:10,width:"740px",maxWidth:"100vw",height:"100vh",overflowY:"auto",background:PAGE_BG,borderLeft:"1px solid #E2E6ED",boxShadow:"-8px 0 32px rgba(0,0,0,0.16)"}}>
+        <div style={{position:"sticky",top:0,zIndex:10,background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY})`,padding:"18px 24px",display:"flex",alignItems:"center",gap:"14px"}}>
+          <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,0.12)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px"}}>🔧</div>
           <div style={{flex:1}}>
-            <div style={{color:"#ea580c",fontSize:"11px",fontWeight:700,letterSpacing:"0.08em",textTransform:"uppercase"}}>MAINTENANCE HISTORY</div>
-            <div style={{color:"#111827",fontSize:"17px",fontWeight:700}}>All Vehicle Service Records</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.1em",textTransform:"uppercase",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>MAINTENANCE HISTORY</div>
+            <div style={{color:"#fff",fontSize:"17px",fontWeight:700,fontFamily:"'Rajdhani','Barlow',sans-serif"}}>All Vehicle Service Records</div>
           </div>
-          <button onClick={onClose} style={{background:"#f3f4f6",border:"1px solid #e5e7eb",color:"#6b7280",cursor:"pointer",width:"34px",height:"34px",borderRadius:"8px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,0.1)",border:"1px solid rgba(137,152,177,0.3)",color:"#fff",cursor:"pointer",width:"34px",height:"34px",borderRadius:"4px",fontSize:"18px",display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
         </div>
 
-        <div style={{padding:"20px 24px",borderBottom:"1px solid #e5e7eb",display:"flex",gap:"12px",flexWrap:"wrap",alignItems:"center"}}>
+        <div style={{padding:"20px 24px",borderBottom:"1px solid #E2E6ED",display:"flex",gap:"12px",flexWrap:"wrap",alignItems:"center",background:"#fff"}}>
           <div style={{position:"relative",flex:1,minWidth:"180px"}}>
             <span style={{position:"absolute",left:"10px",top:"50%",transform:"translateY(-50%)",color:"#9ca3af",fontSize:"14px"}}>🔍</span>
             <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search vendor, description, invoice…" style={{...inp({paddingLeft:"32px"})}}/>
@@ -935,52 +941,68 @@ export default function AssetTracker() {
   useEffect(()=>{setPage(1);},[search,category,statusFilter,loanFilter]);
 
   const handleSort=(f)=>{if(sortField===f)setSortDir(d=>d==="asc"?"desc":"asc");else{setSortField(f);setSortDir("asc");}};
-  const SortIcon=({field})=>sortField!==field?<span style={{color:"#d1d5db",marginLeft:"4px"}}>⇅</span>:<span style={{color:BLUE_MID,marginLeft:"4px"}}>{sortDir==="asc"?"↑":"↓"}</span>;
-  const colStyle=(f)=>({padding:"11px 16px",textAlign:"left",color:"#6b7280",fontSize:"11px",fontWeight:700,letterSpacing:"0.06em",textTransform:"uppercase",cursor:"pointer",background:sortField===f?BLUE_BG:"transparent",whiteSpace:"nowrap",userSelect:"none",borderBottom:"1px solid #e5e7eb"});
+  const SortIcon=({field})=>sortField!==field?<span style={{color:"#C8D0DA",marginLeft:"4px"}}>⇅</span>:<span style={{color:PRIMARY,marginLeft:"4px"}}>{sortDir==="asc"?"↑":"↓"}</span>;
+  const colStyle=(f)=>({padding:"11px 16px",textAlign:"left",color:BLUE_GRAY,fontSize:"11px",fontWeight:700,letterSpacing:"0.07em",textTransform:"uppercase",cursor:"pointer",background:sortField===f?BLUE_BG:"#F4F6F8",whiteSpace:"nowrap",userSelect:"none",borderBottom:"1px solid #E2E6ED",fontFamily:"'Barlow',inherit"});
 
   const selectedLive=useMemo(()=>selected?assets.find(a=>a.id===selected.id)||selected:null,[selected,assets]);
 
   if(loading) return (
-    <div style={{minHeight:"100vh",background:"#f3f4f6",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"16px"}}>
-      <img src={LOGO_SRC} alt="FPI" style={{height:"60px",objectFit:"contain"}}/>
-      <div style={{color:"#6b7280",fontSize:"14px"}}>Loading asset inventory…</div>
+    <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${DEEP_NAVY},${DARK_NAVY},#1B4668)`,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"16px"}}>
+      <img src={LOGO_SRC} alt="FPI" style={{height:"64px",objectFit:"contain",filter:"brightness(0) invert(1)",opacity:0.9}}/>
+      <div style={{color:BLUE_GRAY,fontSize:"14px",fontFamily:"'Barlow',system-ui,sans-serif",letterSpacing:"0.06em",textTransform:"uppercase"}}>Loading asset inventory…</div>
     </div>
   );
 
   if(error) return (
-    <div style={{minHeight:"100vh",background:"#f3f4f6",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"12px"}}>
-      <div style={{color:"#dc2626",fontSize:"16px",fontWeight:700}}>⚠️ Failed to connect to database</div>
-      <div style={{color:"#6b7280",fontSize:"13px",maxWidth:"400px",textAlign:"center"}}>{error}</div>
+    <div style={{minHeight:"100vh",background:PAGE_BG,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:"12px",fontFamily:"'Barlow',system-ui,sans-serif"}}>
+      <div style={{color:"#dc2626",fontSize:"16px",fontWeight:700}}>Failed to connect to database</div>
+      <div style={{color:BLUE_GRAY,fontSize:"13px",maxWidth:"400px",textAlign:"center"}}>{error}</div>
       <div style={{color:"#9ca3af",fontSize:"12px"}}>Check that DATABASE_URL is set in your Vercel environment variables.</div>
     </div>
   );
 
   return (
     <>
-      <Head><title>FPI Asset Tracker</title><meta name="viewport" content="width=device-width,initial-scale=1"/><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></Head>
-      <div style={{minHeight:"100vh",background:"#f3f4f6",color:"#111827",fontFamily:"'DM Sans',system-ui,sans-serif"}}>
+      <Head>
+        <title>FPI Asset Tracker</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+      </Head>
+      <div style={{minHeight:"100vh",background:PAGE_BG,color:NEUTRAL_DARK,fontFamily:"'Barlow',system-ui,sans-serif"}}>
 
-        {/* Top Bar */}
-        <div style={{background:"#fff",borderBottom:"1px solid #e5e7eb",padding:"0 32px",display:"flex",alignItems:"center",gap:"20px",height:"64px",boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
-          <img src={LOGO_SRC} alt="FPI Security Services" style={{height:"40px",objectFit:"contain",display:"block"}}/>
-          <div style={{width:"1px",height:"30px",background:"#e5e7eb"}}/>
+        {/* Top Bar — Dark Navy */}
+        <div style={{background:`linear-gradient(135deg,${DEEP_NAVY} 0%,${DARK_NAVY} 60%,#1B4668 100%)`,padding:"0 32px",display:"flex",alignItems:"center",gap:"20px",height:"68px",boxShadow:"0 2px 12px rgba(0,0,0,0.18)",position:"sticky",top:0,zIndex:40}}>
+          <img src={LOGO_SRC} alt="FPI Security Services" style={{height:"42px",objectFit:"contain",display:"block",filter:"brightness(0) invert(1)",opacity:0.95}}/>
+          <div style={{width:"1px",height:"30px",background:"rgba(137,152,177,0.3)"}}/>
           <div>
-            <div style={{color:"#111827",fontWeight:700,fontSize:"15px",lineHeight:1.1}}>Asset Tracker</div>
-            <div style={{color:"#9ca3af",fontSize:"11px",letterSpacing:"0.06em",textTransform:"uppercase"}}>Inventory Management</div>
+            <div style={{color:"#fff",fontWeight:700,fontSize:"16px",lineHeight:1.1,fontFamily:"'Rajdhani','Barlow',sans-serif",letterSpacing:"0.04em"}}>ASSET TRACKER</div>
+            <div style={{color:BLUE_GRAY,fontSize:"11px",letterSpacing:"0.08em",textTransform:"uppercase"}}>Inventory Management</div>
           </div>
           <div style={{flex:1}}/>
-          <button onClick={()=>setShowExport(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:"8px",color:"#16a34a",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
-            📊 Export
+          <button onClick={()=>setShowExport(true)}
+            style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"4px",color:"#fff",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"'Barlow',inherit",transition:"background 0.15s"}}
+            onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.14)"}
+            onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}>
+            Export
           </button>
-          <button onClick={()=>setShowMaintOverview(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#fff7ed",border:"1px solid #fed7aa",borderRadius:"8px",color:"#ea580c",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit",position:"relative"}}>
-            🔧 Maintenance
-            {Object.values(maintenance).flat().length>0&&<span style={{background:"#ea580c",color:"#fff",borderRadius:"20px",fontSize:"10px",fontWeight:700,padding:"1px 6px",marginLeft:"2px"}}>{Object.values(maintenance).flat().length}</span>}
+          <button onClick={()=>setShowMaintOverview(true)}
+            style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"4px",color:"#fff",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"'Barlow',inherit",transition:"background 0.15s",position:"relative"}}
+            onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.14)"}
+            onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}>
+            Maintenance
+            {Object.values(maintenance).flat().length>0&&<span style={{background:PRIMARY,color:"#fff",borderRadius:"9999px",fontSize:"10px",fontWeight:700,padding:"1px 6px",marginLeft:"2px"}}>{Object.values(maintenance).flat().length}</span>}
           </button>
-          <button onClick={()=>setShowLocations(true)} style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"#f9fafb",border:"1px solid #d1d5db",borderRadius:"8px",color:"#374151",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>
-            📍 Locations
+          <button onClick={()=>setShowLocations(true)}
+            style={{display:"flex",alignItems:"center",gap:"7px",padding:"8px 16px",background:"rgba(255,255,255,0.08)",border:"1px solid rgba(137,152,177,0.3)",borderRadius:"4px",color:"#fff",fontSize:"13px",fontWeight:600,cursor:"pointer",fontFamily:"'Barlow',inherit",transition:"background 0.15s"}}
+            onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,0.14)"}
+            onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,0.08)"}>
+            Locations
           </button>
-          <button onClick={()=>setShowAdd(true)} style={{display:"flex",alignItems:"center",gap:"8px",padding:"9px 20px",background:BLUE_MID,border:"none",borderRadius:"8px",color:"#fff",fontSize:"13px",fontWeight:700,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 2px 8px ${BLUE_MID}40`}}>
-            ＋ Add Asset
+          <button onClick={()=>setShowAdd(true)}
+            style={{display:"flex",alignItems:"center",gap:"8px",padding:"9px 20px",background:PRIMARY,border:"none",borderRadius:"4px",color:"#fff",fontSize:"13px",fontWeight:700,cursor:"pointer",fontFamily:"'Barlow',inherit",boxShadow:"0 4px 20px rgba(0,96,144,0.45)",transition:"background 0.15s"}}
+            onMouseEnter={e=>e.currentTarget.style.background=HOVER_BLUE}
+            onMouseLeave={e=>e.currentTarget.style.background=PRIMARY}>
+            + Add Asset
           </button>
         </div>
 
@@ -990,23 +1012,23 @@ export default function AssetTracker() {
             <StatCard label="Total Assets" value={stats.total} bg={BLUE_BG} icon="📦"
               onClick={()=>{setStatusFilter("All");setLoanFilter("All");setCategory("All");setSearch("");}}
               active={statusFilter==="All"&&loanFilter==="All"&&category==="All"&&!search.trim()}/>
-            <StatCard label="Checked Out" value={stats.checkedOut} bg="#ffedd5" icon="📤"
+            <StatCard label="Checked Out" value={stats.checkedOut} bg="#E8EDF4" icon="📤"
               onClick={()=>{setLoanFilter(loanFilter==="out"?"All":"out");setStatusFilter("All");setCategory("All");}}
               active={loanFilter==="out"}/>
-            <StatCard label="Needs Repair" value={stats.needsRepair} bg="#fee2e2" icon="🔧"
+            <StatCard label="Needs Repair" value={stats.needsRepair} bg="#FEF2F2" icon="🔧"
               onClick={()=>{setStatusFilter(statusFilter==="Broken - Needs Repair"?"All":"Broken - Needs Repair");setLoanFilter("All");setCategory("All");}}
               active={statusFilter==="Broken - Needs Repair"}/>
-            <StatCard label="Out of Service" value={stats.outOfService} bg="#f3f4f6" icon="⛔"
+            <StatCard label="Out of Service" value={stats.outOfService} bg="#F4F6F8" icon="⛔"
               onClick={()=>{setStatusFilter(statusFilter==="Out of Service"?"All":"Out of Service");setLoanFilter("All");setCategory("All");}}
               active={statusFilter==="Out of Service"}/>
           </div>
 
           {/* Expiration Alerts */}
           {expirationAlerts.length>0&&(
-            <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:"12px",padding:"14px 18px",marginBottom:"16px"}}>
+            <div style={{background:"#fffbeb",border:"1.5px solid #fde68a",borderRadius:"8px",padding:"14px 18px",marginBottom:"16px",boxShadow:"0 2px 12px rgba(0,0,0,.07)"}}>
               <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"10px"}}>
-                <span style={{fontSize:"16px"}}>⚠️</span>
-                <span style={{color:"#92400e",fontSize:"12px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.05em"}}>Vehicle Tag Alerts — {expirationAlerts.length} vehicle{expirationAlerts.length!==1?"s":""} need attention</span>
+                <span style={{width:"8px",height:"8px",borderRadius:"9999px",background:"#f59e0b",display:"inline-block",flexShrink:0}}/>
+                <span style={{color:"#92400e",fontSize:"11px",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",fontFamily:"'Rajdhani','Barlow',sans-serif"}}>Vehicle Tag Alerts — {expirationAlerts.length} vehicle{expirationAlerts.length!==1?"s":""} need attention</span>
               </div>
               <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
                 {expirationAlerts.map((al,i)=>(
@@ -1030,31 +1052,33 @@ export default function AssetTracker() {
             {CATEGORIES.map(cat=>{
               const count=cat==="All"?assets.length:assets.filter(a=>a.category===cat).length;
               const active=category===cat;
-              return <button key={cat} onClick={()=>setCategory(cat)} style={{padding:"6px 14px",borderRadius:"20px",border:"1px solid",borderColor:active?BLUE_MID:"#d1d5db",background:active?BLUE_MID:"#fff",color:active?"#fff":"#6b7280",fontSize:"12px",fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",gap:"5px",transition:"all 0.15s",fontFamily:"inherit"}}>
+              return <button key={cat} onClick={()=>setCategory(cat)}
+                style={{padding:"6px 14px",borderRadius:"4px",border:"1.5px solid",borderColor:active?PRIMARY:"#C8D0DA",background:active?PRIMARY:"#fff",color:active?"#fff":STEEL_BLUE,fontSize:"12px",fontWeight:600,cursor:"pointer",display:"flex",alignItems:"center",gap:"5px",transition:"all 0.15s",fontFamily:"'Barlow',inherit",letterSpacing:"0.02em"}}
+                onMouseEnter={e=>{if(!active){e.currentTarget.style.borderColor=PRIMARY;e.currentTarget.style.color=PRIMARY;}}}
+                onMouseLeave={e=>{if(!active){e.currentTarget.style.borderColor="#C8D0DA";e.currentTarget.style.color=STEEL_BLUE;}}}>
                 {cat!=="All"&&<span>{CATEGORY_ICONS[cat]}</span>}
                 {cat}
-                <span style={{background:active?"rgba(255,255,255,0.25)":"#f3f4f6",color:active?"#fff":"#9ca3af",padding:"0 6px",borderRadius:"10px",fontSize:"10px",fontWeight:700}}>{count}</span>
+                <span style={{background:active?"rgba(255,255,255,0.25)":BLUE_BG,color:active?"#fff":PRIMARY,padding:"0 6px",borderRadius:"4px",fontSize:"10px",fontWeight:700}}>{count}</span>
               </button>;
             })}
           </div>
 
           {/* Table Card */}
-          <div style={{background:"#fff",border:"1px solid #e5e7eb",borderRadius:"14px",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
-            <div style={{padding:"16px 20px",borderBottom:"1px solid #f3f4f6",display:"flex",gap:"12px",flexWrap:"wrap",alignItems:"center"}}>
+          <div style={{background:"#fff",border:"1px solid #E2E6ED",borderRadius:"8px",overflow:"hidden",boxShadow:"0 2px 12px rgba(0,0,0,.07)"}}>
+            <div style={{padding:"16px 20px",borderBottom:"1px solid #E2E6ED",display:"flex",gap:"12px",flexWrap:"wrap",alignItems:"center",background:"#fff"}}>
               <div style={{position:"relative",flex:1,minWidth:"200px"}}>
-                <span style={{position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",color:"#9ca3af",fontSize:"15px"}}>🔍</span>
-                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search title, asset #, location, serial, tag, VIN…" style={{width:"100%",background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:"8px",color:"#111827",padding:"9px 14px 9px 38px",fontSize:"13px",outline:"none",boxSizing:"border-box",fontFamily:"inherit"}}/>
+                <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search title, asset #, location, serial, tag, VIN…" style={{...inp({paddingLeft:"14px",background:PAGE_BG,border:"1.5px solid #C8D0DA",borderRadius:"4px"})}}/>
               </div>
-              <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:"8px",color:"#374151",padding:"9px 14px",fontSize:"13px",cursor:"pointer",outline:"none",fontFamily:"inherit"}}>
+              <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} style={{...sel({background:PAGE_BG,border:"1.5px solid #C8D0DA",borderRadius:"4px",width:"auto"})}}>
                 <option value="All">All Statuses</option>
                 {ALL_STATUSES.map(s=><option key={s} value={s}>{STATUS_CONFIG[s]?.label||s}</option>)}
               </select>
-              <select value={loanFilter} onChange={e=>setLoanFilter(e.target.value)} style={{background:"#f9fafb",border:"1px solid #e5e7eb",borderRadius:"8px",color:"#374151",padding:"9px 14px",fontSize:"13px",cursor:"pointer",outline:"none",fontFamily:"inherit"}}>
+              <select value={loanFilter} onChange={e=>setLoanFilter(e.target.value)} style={{...sel({background:PAGE_BG,border:"1.5px solid #C8D0DA",borderRadius:"4px",width:"auto"})}}>
                 <option value="All">In & Out</option>
                 <option value="in">Checked In</option>
                 <option value="out">Checked Out</option>
               </select>
-              <div style={{color:"#9ca3af",fontSize:"13px",whiteSpace:"nowrap"}}>{filtered.length} result{filtered.length!==1?"s":""}</div>
+              <div style={{color:BLUE_GRAY,fontSize:"13px",whiteSpace:"nowrap",fontWeight:500}}>{filtered.length} result{filtered.length!==1?"s":""}</div>
             </div>
 
             <div style={{overflowX:"auto"}}>
@@ -1074,28 +1098,28 @@ export default function AssetTracker() {
                 </thead>
                 <tbody>
                   {paginated.length===0
-                    ?<tr><td colSpan={9} style={{padding:"56px",textAlign:"center",color:"#d1d5db",fontSize:"14px"}}>No assets match your filters</td></tr>
+                    ?<tr><td colSpan={9} style={{padding:"56px",textAlign:"center",color:"#C8D0DA",fontSize:"14px"}}>No assets match your filters</td></tr>
                     :paginated.map((asset,i)=>{
                       const nc=(notes[asset.id]||[]).length;
                       return <tr key={asset.id} onClick={()=>setSelected(asset)}
-                        style={{borderBottom:"1px solid #f3f4f6",cursor:"pointer",background:"#fff",transition:"background 0.1s"}}
-                        onMouseEnter={e=>e.currentTarget.style.background="#f9fafb"}
+                        style={{borderBottom:"1px solid #E2E6ED",cursor:"pointer",background:"#fff",transition:"background 0.1s"}}
+                        onMouseEnter={e=>e.currentTarget.style.background=PAGE_BG}
                         onMouseLeave={e=>e.currentTarget.style.background="#fff"}>
-                        <td style={{padding:"13px 16px",fontSize:"12px",color:BLUE_MID,fontWeight:700,fontFamily:"monospace"}}>{asset.id}</td>
-                        <td style={{padding:"13px 16px",fontSize:"13px",color:"#111827",fontWeight:500,maxWidth:"200px"}}>
+                        <td style={{padding:"13px 16px",fontSize:"12px",color:PRIMARY,fontWeight:700,fontFamily:"'JetBrains Mono',monospace"}}>{asset.id}</td>
+                        <td style={{padding:"13px 16px",fontSize:"13px",color:NEUTRAL_DARK,fontWeight:500,maxWidth:"200px"}}>
                           <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
-                            <span style={{fontSize:"16px"}}>{CATEGORY_ICONS[asset.category]||"📦"}</span>
+                            <span style={{fontSize:"15px"}}>{CATEGORY_ICONS[asset.category]||"📦"}</span>
                             <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.title||"—"}</span>
                           </div>
                         </td>
-                        <td style={{padding:"13px 16px",fontSize:"12px",color:"#9ca3af",whiteSpace:"nowrap"}}>{asset.category||"—"}</td>
-                        <td style={{padding:"13px 16px",fontSize:"13px",color:"#6b7280",maxWidth:"180px"}}><div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.location||"—"}</div></td>
+                        <td style={{padding:"13px 16px",fontSize:"12px",color:BLUE_GRAY,whiteSpace:"nowrap"}}>{asset.category||"—"}</td>
+                        <td style={{padding:"13px 16px",fontSize:"13px",color:STEEL_BLUE,maxWidth:"180px"}}><div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.location||"—"}</div></td>
                         <td style={{padding:"13px 16px"}}><StatusBadge status={asset.status}/></td>
                         <td style={{padding:"13px 16px"}}><LoanBadge status={asset.loanStatus}/></td>
-                        <td style={{padding:"13px 16px",fontSize:"13px",color:"#6b7280",maxWidth:"150px"}}><div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.loanee||asset.checkedOutBy?.split("@")[0]||"—"}</div></td>
+                        <td style={{padding:"13px 16px",fontSize:"13px",color:STEEL_BLUE,maxWidth:"150px"}}><div style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{asset.loanee||asset.checkedOutBy?.split("@")[0]||"—"}</div></td>
                         <td style={{padding:"13px 16px",fontSize:"13px",color:"#16a34a",fontWeight:600,whiteSpace:"nowrap"}}>{asset.purchaseCost||"—"}</td>
                         <td style={{padding:"13px 16px"}}>
-                          {nc>0?<span style={{background:BLUE_BG,color:BLUE_MID,border:`1px solid ${BLUE_BORDER}`,padding:"3px 9px",borderRadius:"20px",fontSize:"11px",fontWeight:700}}>📝 {nc}</span>:<span style={{color:"#e5e7eb"}}>—</span>}
+                          {nc>0?<span style={{background:BLUE_BG,color:PRIMARY,border:`1px solid ${BLUE_BORDER}`,padding:"3px 9px",borderRadius:"4px",fontSize:"11px",fontWeight:700}}>{nc} notes</span>:<span style={{color:"#E2E6ED"}}>—</span>}
                         </td>
                       </tr>;
                     })
@@ -1105,19 +1129,19 @@ export default function AssetTracker() {
             </div>
 
             {totalPages>1&&(
-              <div style={{borderTop:"1px solid #f3f4f6",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"#f9fafb"}}>
-                <div style={{color:"#9ca3af",fontSize:"13px"}}>Page {page} of {totalPages} · {filtered.length} assets</div>
+              <div style={{borderTop:"1px solid #E2E6ED",padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",background:PAGE_BG}}>
+                <div style={{color:BLUE_GRAY,fontSize:"13px",fontWeight:500}}>Page {page} of {totalPages} · {filtered.length} assets</div>
                 <div style={{display:"flex",gap:"6px"}}>
-                  <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} style={{padding:"6px 14px",background:"#fff",border:"1px solid #e5e7eb",borderRadius:"7px",color:page===1?"#d1d5db":"#374151",fontSize:"13px",cursor:page===1?"default":"pointer",fontFamily:"inherit"}}>← Prev</button>
+                  <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} style={{padding:"6px 14px",background:"#fff",border:"1.5px solid #C8D0DA",borderRadius:"4px",color:page===1?"#C8D0DA":NEUTRAL_DARK,fontSize:"13px",cursor:page===1?"default":"pointer",fontFamily:"'Barlow',inherit",fontWeight:500}}>← Prev</button>
                   {Array.from({length:Math.min(7,totalPages)},(_,i)=>{
                     let p;
                     if(totalPages<=7)p=i+1;
                     else if(page<=4)p=i+1;
                     else if(page>=totalPages-3)p=totalPages-6+i;
                     else p=page-3+i;
-                    return <button key={p} onClick={()=>setPage(p)} style={{width:"34px",height:"34px",background:page===p?BLUE_MID:"#fff",border:`1px solid ${page===p?BLUE_MID:"#e5e7eb"}`,borderRadius:"7px",color:page===p?"#fff":"#374151",fontSize:"13px",cursor:"pointer",fontWeight:page===p?700:400,fontFamily:"inherit"}}>{p}</button>;
+                    return <button key={p} onClick={()=>setPage(p)} style={{width:"34px",height:"34px",background:page===p?PRIMARY:"#fff",border:`1.5px solid ${page===p?PRIMARY:"#C8D0DA"}`,borderRadius:"4px",color:page===p?"#fff":NEUTRAL_DARK,fontSize:"13px",cursor:"pointer",fontWeight:page===p?700:400,fontFamily:"'Barlow',inherit"}}>{p}</button>;
                   })}
-                  <button onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages} style={{padding:"6px 14px",background:"#fff",border:"1px solid #e5e7eb",borderRadius:"7px",color:page===totalPages?"#d1d5db":"#374151",fontSize:"13px",cursor:page===totalPages?"default":"pointer",fontFamily:"inherit"}}>Next →</button>
+                  <button onClick={()=>setPage(p=>Math.min(totalPages,p+1))} disabled={page===totalPages} style={{padding:"6px 14px",background:"#fff",border:"1.5px solid #C8D0DA",borderRadius:"4px",color:page===totalPages?"#C8D0DA":NEUTRAL_DARK,fontSize:"13px",cursor:page===totalPages?"default":"pointer",fontFamily:"'Barlow',inherit",fontWeight:500}}>Next →</button>
                 </div>
               </div>
             )}
