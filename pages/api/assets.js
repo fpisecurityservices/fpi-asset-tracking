@@ -22,8 +22,8 @@ export default async function handler(req, res) {
           manufacturer, model, type, processor, ram, hard_drive, make, tag,
           tag_expires, vin, vehicle_number, vehicle_year, lease_own,
           monthly_payment, payoff_date, bank, insurance_policy_num,
-          insurance_policy_payment, phone_number, email_account, purpose,
-          bw_color, comments, is_custom, created_date
+          insurance_policy_payment, phone_number, email_account, phone_password,
+          email_password, purpose, bw_color, comments, is_custom, created_date
         ) VALUES (
           ${r.id}, ${r.title}, ${r.notes}, ${r.category}, ${r.location},
           ${r.parent_location}, ${r.location_address}, ${r.location_contact},
@@ -35,7 +35,8 @@ export default async function handler(req, res) {
           ${r.tag}, ${r.tag_expires}, ${r.vin}, ${r.vehicle_number},
           ${r.vehicle_year}, ${r.lease_own}, ${r.monthly_payment}, ${r.payoff_date},
           ${r.bank}, ${r.insurance_policy_num}, ${r.insurance_policy_payment},
-          ${r.phone_number}, ${r.email_account}, ${r.purpose}, ${r.bw_color},
+          ${r.phone_number}, ${r.email_account}, ${r.phone_password},
+          ${r.email_password}, ${r.purpose}, ${r.bw_color},
           ${r.comments}, TRUE, ${new Date().toLocaleString()}
         )
         RETURNING *
@@ -87,6 +88,8 @@ export default async function handler(req, res) {
           insurance_policy_payment   = ${r.insurance_policy_payment},
           phone_number        = ${r.phone_number},
           email_account       = ${r.email_account},
+          phone_password      = ${r.phone_password},
+          email_password      = ${r.email_password},
           purpose             = ${r.purpose},
           bw_color            = ${r.bw_color},
           comments            = ${r.comments},
