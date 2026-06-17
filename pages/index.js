@@ -237,6 +237,7 @@ function EditModal({asset,onClose,onSave,locations,saving}) {
   const set=(k,v)=>setForm(f=>({...f,[k]:v}));
   const fi=(k,label,ph="")=><div><Label>{label}</Label><input style={inp()} value={form[k]||""} onChange={e=>set(k,e.target.value)} placeholder={ph}/></div>;
   const showV=["Vehicles","Golf Carts"].includes(form.category);
+  const showM=form.category==="Mobile Device";
   const locNames=locations.map(l=>l.name);
   return (
     <div style={{position:"fixed",inset:0,zIndex:70,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
@@ -280,7 +281,7 @@ function EditModal({asset,onClose,onSave,locations,saving}) {
             <div><Label>Lease/Own</Label><select style={sel()} value={form.leaseOwn||""} onChange={e=>set("leaseOwn",e.target.value)}><option value="">—</option><option value="Lease">Lease</option><option value="Own">Own</option><option value="Finance">Finance</option></select></div>
             {fi("monthlyPayment","Monthly Payment","$0.00")}{fi("payoffDate","Payoff Date","MM/DD/YYYY")}{fi("bank","Bank")}{fi("insurancePolicyNum","Insurance Policy #")}{fi("insurancePolicyPayment","Insurance Payment","$0.00")}
           </Grid></div>}
-          <div style={{marginBottom:"28px"}}><SecTitle>Contact / Comms</SecTitle><Grid>{fi("phoneNumber","Phone")}{fi("emailAccount","Email Account")}</Grid></div>
+          <div style={{marginBottom:"28px"}}><SecTitle>Contact / Comms</SecTitle><Grid>{fi("phoneNumber","Phone")}{fi("emailAccount","Email Account")}{showM&&fi("phonePassword","Phone Password")}{showM&&fi("emailPassword","Email Password")}</Grid></div>
           <div style={{display:"flex",gap:"10px",paddingTop:"8px",borderTop:"1px solid #e5e7eb"}}>
             <Btn variant="secondary" onClick={onClose} style={{flex:1}}>Cancel</Btn>
             <Btn variant="primary" onClick={()=>onSave(form)} disabled={saving} style={{flex:2}}>{saving?"Saving…":"✓ Save Changes"}</Btn>
@@ -293,10 +294,11 @@ function EditModal({asset,onClose,onSave,locations,saving}) {
 
 // ─── ADD ASSET MODAL ──────────────────────────────────────────────────────────
 function AddModal({onClose,onSave,nextId,locations,saving}) {
-  const [form,setForm]=useState({id:String(nextId),title:"",category:"Computers",notes:"",location:"",parentLocation:"",locationAddress:"",locationContact:"",locationEmail:"",locationPhone:"",status:"Working Condition",loanStatus:"in",loanee:"",checkedOutDate:"",vendor:"",datePurchased:"",purchaseCost:"",warrantyExpires:"",manufacturer:"",model:"",processor:"",ram:"",hardDrive:"",bwColor:"",type:"",purpose:"",serialNumber:"",phoneNumber:"",emailAccount:"",make:"",vehicleYear:"",vehicleNumber:"",vin:"",tag:"",tagExpires:"",leaseOwn:"",monthlyPayment:"",payoffDate:"",bank:"",insurancePolicyNum:"",insurancePolicyPayment:""});
+  const [form,setForm]=useState({id:String(nextId),title:"",category:"Computers",notes:"",location:"",parentLocation:"",locationAddress:"",locationContact:"",locationEmail:"",locationPhone:"",status:"Working Condition",loanStatus:"in",loanee:"",checkedOutDate:"",vendor:"",datePurchased:"",purchaseCost:"",warrantyExpires:"",manufacturer:"",model:"",processor:"",ram:"",hardDrive:"",bwColor:"",type:"",purpose:"",serialNumber:"",phoneNumber:"",emailAccount:"",phonePassword:"",emailPassword:"",make:"",vehicleYear:"",vehicleNumber:"",vin:"",tag:"",tagExpires:"",leaseOwn:"",monthlyPayment:"",payoffDate:"",bank:"",insurancePolicyNum:"",insurancePolicyPayment:""});
   const set=(k,v)=>setForm(f=>({...f,[k]:v}));
   const fi=(k,label,ph="")=><div><Label>{label}</Label><input style={inp()} value={form[k]} onChange={e=>set(k,e.target.value)} placeholder={ph}/></div>;
   const showV=["Vehicles","Golf Carts"].includes(form.category);
+  const showM=form.category==="Mobile Device";
   const locNames=locations.map(l=>l.name);
   return (
     <div style={{position:"fixed",inset:0,zIndex:60,display:"flex",alignItems:"flex-start",justifyContent:"flex-end"}}>
@@ -341,7 +343,7 @@ function AddModal({onClose,onSave,nextId,locations,saving}) {
             <div><Label>Lease/Own</Label><select style={sel()} value={form.leaseOwn} onChange={e=>set("leaseOwn",e.target.value)}><option value="">—</option><option value="Lease">Lease</option><option value="Own">Own</option><option value="Finance">Finance</option></select></div>
             {fi("monthlyPayment","Monthly Payment","$0.00")}{fi("payoffDate","Payoff Date")}{fi("bank","Bank")}{fi("insurancePolicyNum","Insurance Policy #")}{fi("insurancePolicyPayment","Insurance Payment","$0.00")}
           </Grid></div>}
-          <div style={{marginBottom:"28px"}}><SecTitle>Contact / Comms</SecTitle><Grid>{fi("phoneNumber","Phone")}{fi("emailAccount","Email Account")}</Grid></div>
+          <div style={{marginBottom:"28px"}}><SecTitle>Contact / Comms</SecTitle><Grid>{fi("phoneNumber","Phone")}{fi("emailAccount","Email Account")}{showM&&fi("phonePassword","Phone Password")}{showM&&fi("emailPassword","Email Password")}</Grid></div>
           <div style={{display:"flex",gap:"10px",paddingTop:"8px",borderTop:"1px solid #e5e7eb"}}>
             <Btn variant="secondary" onClick={onClose} style={{flex:1}}>Cancel</Btn>
             <Btn variant="primary" onClick={()=>onSave(form)} disabled={saving} style={{flex:2}}>{saving?"Saving…":"✓ Add Asset"}</Btn>
@@ -542,7 +544,7 @@ function DetailPanel({asset,onClose,notes,onAddNote,onDeleteNote,onEdit,onLoan,m
     {group:"Purchase Info",items:[{label:"Vendor",value:asset.vendor},{label:"Date Purchased",value:asset.datePurchased},{label:"Cost",value:asset.purchaseCost},{label:"Warranty Expires",value:asset.warrantyExpires},{label:"Created",value:asset.createdDate}]},
     {group:"Hardware",items:[{label:"Manufacturer",value:asset.manufacturer},{label:"Model",value:asset.model},{label:"Processor",value:asset.processor},{label:"RAM",value:asset.ram},{label:"Hard Drive",value:asset.hardDrive},{label:"Type",value:asset.type},{label:"Purpose",value:asset.purpose}]},
     {group:"Vehicle Info",items:[{label:"Make",value:asset.make},{label:"Model",value:asset.model},{label:"Year",value:asset.vehicleYear},{label:"Vehicle #",value:asset.vehicleNumber},{label:"VIN",value:asset.vin},{label:"Tag",value:asset.tag},{label:"Tag Expires",value:asset.tagExpires},{label:"Lease/Own",value:asset.leaseOwn},{label:"Monthly Payment",value:asset.monthlyPayment},{label:"Payoff Date",value:asset.payoffDate},{label:"Bank",value:asset.bank},{label:"Insurance #",value:asset.insurancePolicyNum},{label:"Insurance Payment",value:asset.insurancePolicyPayment}]},
-    {group:"Contact / Comms",items:[{label:"Phone",value:asset.phoneNumber},{label:"Email",value:asset.emailAccount}]},
+    {group:"Contact / Comms",items:[{label:"Phone",value:asset.phoneNumber},{label:"Email",value:asset.emailAccount},{label:"Phone Password",value:asset.phonePassword},{label:"Email Password",value:asset.emailPassword}]},
     {group:"Comments",items:[{label:"Comments",value:asset.comments,multiline:true}]},
   ];
   const relevant=infoGroups.filter(g=>g.items.some(item=>typeof item.value==="string"?item.value&&item.value.trim()!=="":item.value!=null&&item.value!==undefined));
