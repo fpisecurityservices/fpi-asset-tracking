@@ -53,6 +53,8 @@ export default async function handler(req, res) {
         insurance_policy_payment TEXT DEFAULT '',
         phone_number TEXT DEFAULT '',
         email_account TEXT DEFAULT '',
+        phone_password TEXT DEFAULT '',
+        email_password TEXT DEFAULT '',
         purpose TEXT DEFAULT '',
         bw_color TEXT DEFAULT '',
         comments TEXT DEFAULT '',
@@ -117,6 +119,19 @@ export default async function handler(req, res) {
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
+    `;
+
+    // Add new columns if they don't exist yet (migration for existing databases)
+    await sql`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='assets' AND column_name='phone_password') THEN
+          ALTER TABLE assets ADD COLUMN phone_password TEXT DEFAULT '';
+        END IF;
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='assets' AND column_name='email_password') THEN
+          ALTER TABLE assets ADD COLUMN email_password TEXT DEFAULT '';
+        END IF;
+      END $$
     `;
 
     // Seed assets only if table is empty
